@@ -1,4 +1,6 @@
-Create your own interactive Christmas card in Python using Pygame! Here’s a **step-by-step explanation**:
+Tutorial: Create your own interactive Christmas card in Python using Pygame!
+
+![Example Image](images/img2.png)
 
 ---
 

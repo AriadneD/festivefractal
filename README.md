@@ -19,6 +19,10 @@ The first thing we need is a **Pygame window** where everything will be drawn. T
 
 Here’s the code for that:
 ```python
+import pygame
+import random
+import math
+
 # Initialize Pygame
 pygame.init()
 
@@ -26,9 +30,19 @@ pygame.init()
 WIDTH, HEIGHT = 800, 600
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Interactive Christmas Card")
+
+# Colors
+RED = (255, 0, 0)
+GREEN = (0, 255, 0)
+BROWN = (139, 69, 19)
+WHITE = (255, 255, 255)
+DARK_GREEN = (0, 128, 0)
+
+# Clock for controlling the frame rate
+clock = pygame.time.Clock()
 ```
 
-This gives us a blank canvas to work on!
+This gives us a blank canvas to work on, and sets up color variables we'll use later!
 
 ---
 
@@ -116,7 +130,40 @@ The Koch snowflake is fascinating because it defies our intuition:
 
 By implementing this algorithm in your code, you simulate the recursive process of generating one of the most famous fractals in mathematics, a testament to both its beauty and complexity!
 
-Here’s the code:
+Here's the code:
+```python
+def koch_snowflake(order, scale=100):
+    def divide_segment(p1, p2):
+        dx, dy = p2[0] - p1[0], p2[1] - p1[1]
+        p3 = (p1[0] + dx / 3, p1[1] + dy / 3)
+        p4 = (p1[0] + dx * 2 / 3, p1[1] + dy / 3 * 2)
+        px, py = (
+            p3[0] + dx / 3 * math.cos(math.pi / 3) - dy / 3 * math.sin(math.pi / 3),
+            p3[1] + dx / 3 * math.sin(math.pi / 3) + dy / 3 * math.cos(math.pi / 3),
+        )
+        p5 = (px, py)
+        return [p1, p3, p5, p4, p2]
+
+    def recurse(points, level):
+        if level == 0:
+            return points
+        new_points = []
+        for i in range(len(points) - 1):
+            new_points.extend(divide_segment(points[i], points[i + 1])[:-1])
+        new_points.append(points[-1])
+        return recurse(new_points, level - 1)
+
+    points = [
+        (0, -scale),
+        (-scale * math.sin(math.pi / 3), scale / 2),
+        (scale * math.sin(math.pi / 3), scale / 2),
+        (0, -scale),
+    ]
+    return recurse(points, order)
+```
+
+Now, define your snowflake class and its parameters, implementing the Koch algorithm:
+
 ```python
 class Snowflake:
     def __init__(self, x, y, color, order):
@@ -228,16 +275,33 @@ Use the main game loop to:
 4. **Display the text**.
 
 ```python
+# Create a list of snowflakes
+snowflakes = [
+    Snowflake(
+        random.randint(0, WIDTH),
+        random.randint(-HEIGHT, 0),
+        random.choice([RED, GREEN]),
+        random.randint(2, 5),
+    )
+    for _ in range(20)
+]
+
+# Main game loop
 running = True
 while running:
     screen.fill(WHITE)
+
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
 
-    # Draw everything
+    # Draw the Christmas tree
     draw_christmas_tree(screen)
-    draw_christmas_text(screen, "Merry Christmas!", WIDTH // 2 - 160, 50)
+
+    # Draw the "Merry Christmas X" text
+    draw_christmas_text(screen, "Merry Christmas [Custom Name]!", WIDTH // 2-160, 200)  # Adjust x, y for position
+
+    # Update and draw each snowflake
     for snowflake in snowflakes:
         snowflake.update()
         snowflake.draw(screen)
